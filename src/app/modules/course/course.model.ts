@@ -26,6 +26,7 @@ const detailsSchema = new Schema<TDetailsObject>({
 const courseSchema = new Schema<TCourse>({
     title: {
         type: String,
+        unique: true,
         required: true,
     },
     instructor: {
@@ -63,12 +64,24 @@ const courseSchema = new Schema<TCourse>({
     },
     durationInWeeks: {
         type: Number,
-        required: true,
+
     },
     details: {
         type: detailsSchema,
         required: true,
     },
+});
+courseSchema.pre('save', function (next) {
+    const startDate = new Date(this.startDate);
+    const endDate = new Date(this.endDate);
+
+
+    const durationInWeeks = Math.ceil((endDate.getTime() - startDate.getTime()) / (7 * 24 * 60 * 60 * 1000));
+
+
+    this.durationInWeeks = durationInWeeks;
+
+    next();
 });
 
 const Course = model<TCourse>('Course', courseSchema);

@@ -12,16 +12,23 @@ const detailsValidationSchema = z.object({
 });
 
 
-export const courseSchema = z.object({
-    title: z.string(),
-    instructor: z.string(),
-    categoryId: z.string(),
-    price: z.number(),
-    tags: z.array(tagsValidationSchema),
-    startDate: z.string(),
-    endDate: z.string(),
-    language: z.string(),
-    provider: z.string(),
-    durationInWeeks: z.number(),
-    details: detailsValidationSchema,
+export const courseValidationSchema = z.object({
+    body: z.object({
+        title: z.string(),
+        instructor: z.string(),
+        categoryId: z.string(),
+        price: z.number(),
+        tags: z.array(tagsValidationSchema),
+        startDate: z.string(),
+        endDate: z.string(),
+        language: z.string(),
+        provider: z.string(),
+        durationInWeeks: z.number(),
+        details: detailsValidationSchema,
+    })
 });
+
+
+export const CourseValidations = {
+    courseValidationSchema
+}
