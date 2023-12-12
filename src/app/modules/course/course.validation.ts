@@ -23,7 +23,7 @@ export const courseValidationSchema = z.object({
         endDate: z.string(),
         language: z.string(),
         provider: z.string(),
-        durationInWeeks: z.number(),
+
         details: detailsValidationSchema,
     })
 });
