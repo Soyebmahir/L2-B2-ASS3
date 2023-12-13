@@ -12,7 +12,7 @@ router1.post('/',
 router1.get('/best', CourseController.getBestCourseWithReviewAverage)
 
 router2.get('/', CourseController.getAllCourse)
-router2.put('/:courseId', CourseController.updateCourse)
+router2.put('/:courseId', validateRequest(CourseValidations.updateCourseValidationSchema), CourseController.updateCourse)
 router2.get('/:courseId/reviews', CourseController.getSingleCourseWithReviews)
 
 export const CoursePostRoute = router1
