@@ -4,10 +4,10 @@ export type TErrorSources = {
 }[]
 
 export type TGenericErrorResponse = {
-
-    message: string,
     statusCode: number,
-    errorSources: TErrorSources,
+    message: string,
+    errorMessage: string,
+    errorDetails: object
 
 
 }

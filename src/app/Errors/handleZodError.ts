@@ -8,11 +8,17 @@ export const handleZodError = (err: ZodError): TGenericErrorResponse => {
             message: issue.message
         }
     })
+    const errorMessages = errorSources.map(error => `${error.path} is ${error.message}`)
+    const errorMessage = errorMessages.join('. ')
+    const errorDetails = err
+
     const statusCode = 400;
 
     return {
         statusCode,
+        errorMessage,
         message: 'Validation Error',
-        errorSources
+        errorDetails
+
     }
 }

@@ -1,4 +1,5 @@
-import { CourseRoutes } from "../modules/course/course.route";
+import { CategoryRoutes } from "../modules/category/categroy.route";
+import { CoursePostRoute, CourseRoute, } from "../modules/course/course.route";
 import express from 'express'
 
 const router = express.Router()
@@ -6,7 +7,15 @@ const router = express.Router()
 const moduleRoutes = [
     {
         path: '/course',
-        route: CourseRoutes
+        route: CoursePostRoute
+    },
+    {
+        path: '/courses',
+        route: CourseRoute
+    },
+    {
+        path: '/categories',
+        route: CategoryRoutes
     }
 ]
 
