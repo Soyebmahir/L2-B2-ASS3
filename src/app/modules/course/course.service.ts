@@ -4,6 +4,7 @@ import { TCourse } from "./course.interface";
 import Course from "./course.model";
 import httpStatus from "http-status";
 import AppError from "../../Errors/AppError";
+import { ReviewModel } from "../review/review.model";
 
 
 const createCourseIntoDb = async (payload: TCourse) => {
@@ -184,9 +185,75 @@ const updateCourseIntoDB = async (id: string, payload: Partial<TCourse>) => {
 }
 
 
+const getSingleCourseWithReviewsFromDB = async (courseId: string) => {
+    const course = await Course.findById(courseId).select(
+        "-createdAt -updatedAt -__v",
+    );
+    if (!course) {
+        throw new AppError(httpStatus.NOT_FOUND, "Course Not Exits!!!");
+    }
+    const reviews = await ReviewModel.find({ courseId: course._id }).select(
+        "-createdAt -updatedAt -__v -_id",
+    );
+    return {
+        course,
+        reviews,
+    };
+};
+
+const getBestCourseWithReviewAverageFromDB = async () => {
+    const bestCourse = await ReviewModel.aggregate([
+        {
+            $group: {
+                _id: "$courseId",
+                reviewCount: { $sum: 1 },
+                ratings: { $sum: "$rating" },
+            },
+        },
+        {
+            $project: {
+                course: "$_id",
+                reviewCount: 1,
+                averageRating: { $divide: ["$ratings", "$reviewCount"] },
+                _id: 0,
+            },
+        },
+        {
+            $sort: { averageRating: -1 },
+        },
+        {
+            $limit: 1,
+        },
+        {
+            $lookup: {
+                from: "courses",
+                localField: "course",
+                foreignField: "_id",
+                as: "course",
+            },
+        },
+        {
+            $project: {
+                "course.createdAt": 0,
+                "course.updatedAt": 0,
+                "course.__v": 0,
+            },
+        },
+    ]);
+
+    const course = bestCourse[0];
+    return {
+        course: course.course[0],
+        averageRating: course.averageRating,
+        reviewCount: course.reviewCount,
+    };
+
+};
 
 export const CourseServices = {
     createCourseIntoDb,
     getAllCourseFromDB,
-    updateCourseIntoDB
+    updateCourseIntoDB,
+    getSingleCourseWithReviewsFromDB,
+    getBestCourseWithReviewAverageFromDB
 }

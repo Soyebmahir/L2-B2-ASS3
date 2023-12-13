@@ -34,8 +34,30 @@ const updateCourse = catchAsync(async (req, res) => {
         data: result
     })
 })
+
+const getSingleCourseWithReviews = catchAsync(async (req, res) => {
+    // console.log(req.params.courseId);
+    const result = await CourseServices.getSingleCourseWithReviewsFromDB(req.params.courseId)
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: 'Course Found With Reviews Successfully',
+        data: result
+    })
+})
+const getBestCourseWithReviewAverage = catchAsync(async (req, res) => {
+    const result = await CourseServices.getBestCourseWithReviewAverageFromDB()
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: 'Best Course Found With Average Reviews and Count Successfully',
+        data: result
+    })
+})
 export const CourseController = {
     createCourse,
     getAllCourse,
-    updateCourse
+    updateCourse,
+    getSingleCourseWithReviews,
+    getBestCourseWithReviewAverage
 }
