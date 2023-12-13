@@ -30,6 +30,8 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
         const modifiedError = handleCastError(err)
         statusCode = modifiedError?.statusCode;
         message = modifiedError?.message;
+        errorMessage = modifiedError.errorMessage;
+        errorDetails = modifiedError.errorDetails
 
 
     } else if (err.code === 11000) {
@@ -39,7 +41,8 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
         errorMessage = modifiedError.errorMessage;
         errorDetails = modifiedError.errorDetails
 
-    } else if (err.name === 'ValidationError') {
+    }
+    else if (err.name === 'ValidationError') {
         const modifiedError = handleMongooseError(err)
         statusCode = modifiedError?.statusCode;
         message = modifiedError?.message;
@@ -56,7 +59,7 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
         errorMessage,
 
         errorDetails,
-        err,
+        // err,
         // stack: config.NODE_ENV === 'development' ? err?.stack : null
         stack: err?.stack
     });

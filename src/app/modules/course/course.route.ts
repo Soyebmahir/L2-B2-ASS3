@@ -6,7 +6,9 @@ import { CourseValidations } from './course.validation';
 const router1 = express.Router();
 const router2 = express.Router();
 
-router1.post('/', validateRequest(CourseValidations.courseValidationSchema), CourseController.createCourse)
+router1.post('/',
+    validateRequest(CourseValidations.courseValidationSchema),
+    CourseController.createCourse)
 router1.get('/best', CourseController.getBestCourseWithReviewAverage)
 
 router2.get('/', CourseController.getAllCourse)
