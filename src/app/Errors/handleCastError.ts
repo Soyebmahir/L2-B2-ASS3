@@ -11,7 +11,7 @@ export const handleCastError = (err: mongoose.Error.CastError) => {
     const statusCode = 400
     return {
         statusCode,
-        message: 'CastError Validation',
+        message: 'Invalid Id',
         errorSources,
     }
 

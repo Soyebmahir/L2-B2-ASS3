@@ -6,7 +6,12 @@ const createCourseIntoDb = async (payload: TReview) => {
     return result;
 
 }
+const getAllReviews = async () => {
+    const result = await ReviewModel.find()
+    return result;
+}
 
 export const ReviewServices = {
-    createCourseIntoDb
+    createCourseIntoDb,
+    getAllReviews
 }

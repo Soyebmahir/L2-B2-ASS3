@@ -1,6 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import mongoose from "mongoose";
 import { TCourse } from "./course.interface";
 import Course from "./course.model";
+import httpStatus from "http-status";
+import AppError from "../../Errors/AppError";
+
 
 const createCourseIntoDb = async (payload: TCourse) => {
     const result = await Course.create(payload)
@@ -69,7 +73,110 @@ const getAllCourseFromDB = async (query: Record<string, unknown>) => {
     return result;
 }
 
+const updateCourseIntoDB = async (id: string, payload: Partial<TCourse>) => {
+    console.log({ id }, { payload });
+
+    const { tags, details, startDate, endDate, ...remainingInfo } = payload;
+
+
+    const session = await mongoose.startSession()
+
+    try {
+        session.startTransaction();
+        const modifiedUpdateData: Record<string, unknown> = { ...remainingInfo }
+        if (details && Object.keys(details).length) {
+            for (const [key, value] of Object.entries(details)) {
+                modifiedUpdateData[`details.${key}`] = value
+            }
+        }
+        const basicCourseInfoUpdate = await Course.findByIdAndUpdate(id, modifiedUpdateData, {
+            new: true,
+            runValidators: true,
+            session
+        })
+        if (!basicCourseInfoUpdate) {
+            throw new AppError(httpStatus.BAD_REQUEST, 'Failed to update Course')
+        }
+        // console.log();
+        if (startDate || endDate) {
+            // Update startDate, endDate, and recalculate durationInWeeks
+            const updatedCourse = await Course.findByIdAndUpdate(id, {
+                startDate: startDate || basicCourseInfoUpdate.startDate,
+                endDate: endDate || basicCourseInfoUpdate.endDate,
+            }, {
+                new: true,
+                runValidators: true,
+                session
+            });
+            if (updatedCourse) {
+                const startDateToUpdate = updatedCourse.startDate;
+                const endDateToUpdate = updatedCourse.endDate;
+
+                const durationInWeeks = Math.ceil((new Date(endDateToUpdate).getTime() - new Date(startDateToUpdate).getTime()) / (7 * 24 * 60 * 60 * 1000));
+
+                // Update durationInWeeks
+                await Course.findByIdAndUpdate(id, { durationInWeeks }, {
+                    new: true,
+                    runValidators: true,
+                    session
+                });
+            }
+
+        }
+
+        if (tags && tags.length > 0) {
+            const deleteTags = tags?.filter(el => el.name && el.isDeleted).map(el => el.name)
+            const deletedTags = await Course.findByIdAndUpdate(id, {
+                $pull: { tags: { name: { $in: deleteTags } } }
+            }, {
+                new: true,
+                runValidators: true,
+                session
+            })
+
+            if (!deletedTags) {
+                throw new AppError(httpStatus.BAD_REQUEST, 'Failed to delete Tags ')
+            }
+
+            const newTagsForCourse = tags.filter(el => el.name && !el.isDeleted)
+            const addedTagsIntoCourse = await Course.findByIdAndUpdate(id, {
+                $addToSet: {
+                    tags: {
+                        $each: newTagsForCourse
+                    }
+                }
+            },
+                {
+                    new: true,
+                    runValidators: true,
+                    session
+                })
+            if (!addedTagsIntoCourse) {
+                throw new AppError(httpStatus.BAD_REQUEST, 'Failed To add new Tags')
+            }
+        }
+
+
+        const result = await Course.findById(id)
+        await session.commitTransaction()
+        await session.endSession()
+        return result
+
+
+    } catch (error) {
+        console.log(error);
+        await session.abortTransaction()
+        await session.endSession()
+        throw new AppError(httpStatus.BAD_REQUEST, 'Something Went Wrong')
+
+
+    }
+
+
+}
+
 export const CourseServices = {
     createCourseIntoDb,
-    getAllCourseFromDB
+    getAllCourseFromDB,
+    updateCourseIntoDB
 }

@@ -9,6 +9,7 @@ const router2 = express.Router();
 router1.post('/', validateRequest(CourseValidations.courseValidationSchema), CourseController.createCourse)
 
 router2.get('/', CourseController.getAllCourse)
+router2.put('/:courseId', CourseController.updateCourse)
 
 export const CoursePostRoute = router1
 export const CourseRoute = router2

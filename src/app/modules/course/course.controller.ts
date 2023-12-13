@@ -23,7 +23,19 @@ const getAllCourse = catchAsync(async (req, res) => {
         data: result
     })
 })
+
+
+const updateCourse = catchAsync(async (req, res) => {
+    const result = await CourseServices.updateCourseIntoDB(req.params.courseId, req.body)
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: 'Course Updated Successfully',
+        data: result
+    })
+})
 export const CourseController = {
     createCourse,
-    getAllCourse
+    getAllCourse,
+    updateCourse
 }

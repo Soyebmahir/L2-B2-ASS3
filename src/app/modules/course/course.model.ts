@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Schema, model } from "mongoose";
 import { TCourse, TDetailsObject, TTagsObject } from "./course.interface";
 
@@ -10,6 +11,8 @@ const tagsSchema = new Schema<TTagsObject>({
         type: Boolean,
         default: false
     },
+}, {
+    _id: false
 });
 
 const detailsSchema = new Schema<TDetailsObject>({
@@ -22,6 +25,8 @@ const detailsSchema = new Schema<TDetailsObject>({
         required: true,
     },
 });
+
+// interface TCourseDocument extends Document, TCourse { }
 
 const courseSchema = new Schema<TCourse>({
     title: {
@@ -83,6 +88,8 @@ courseSchema.pre('save', function (next) {
 
     next();
 });
+
+
 
 const Course = model<TCourse>('Course', courseSchema);
 

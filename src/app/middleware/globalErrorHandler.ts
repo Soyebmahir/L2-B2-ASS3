@@ -5,6 +5,7 @@ import { ZodError } from "zod";
 import { handleZodError } from "../Errors/handleZodError";
 import { handleCastError } from "../Errors/handleCastError";
 import { handleDuplicateError } from "../Errors/handleDuplicateError";
+import { handleMongooseError } from "../Errors/handleMongooseError";
 
 
 const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
@@ -38,6 +39,14 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
         errorMessage = modifiedError.errorMessage;
         errorDetails = modifiedError.errorDetails
 
+    } else if (err.name === 'ValidationError') {
+        const modifiedError = handleMongooseError(err)
+        statusCode = modifiedError?.statusCode;
+        message = modifiedError?.message;
+        errorMessage = modifiedError.errorMessage;
+        errorDetails = modifiedError.errorDetails
+
+
     }
 
 
@@ -47,7 +56,7 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
         errorMessage,
 
         errorDetails,
-        // err,
+        err,
         // stack: config.NODE_ENV === 'development' ? err?.stack : null
         stack: err?.stack
     });
