@@ -12,9 +12,17 @@ const createCourseIntoDb = async (payload: TCourse) => {
 
 }
 const getAllCourseFromDB = async (query: Record<string, unknown>) => {
+    const sortFields = ["title", "price", "startDate", " endDate", "language", "durationInWeeks"]
+
     const page = query?.page ? parseInt(query.page as string) : 1;
     const limit = query?.limit ? parseInt(query.limit as string) : 10;
-    const sortBy = query?.sortBy || 'createdAt';
+
+
+    let sortBy = query?.sortBy || 'createdAt';
+    if (!sortFields.includes(sortBy as string)) {
+        // If not, default to 'createdAt'
+        sortBy = 'createdAt';
+    }
     const sortOrder = query?.sortOrder && (query.sortOrder as string).toLowerCase() as string === 'desc' ? -1 : 1;
 
     const filter: Record<string, any> = {};
@@ -74,7 +82,7 @@ const getAllCourseFromDB = async (query: Record<string, unknown>) => {
 }
 
 const updateCourseIntoDB = async (id: string, payload: Partial<TCourse>) => {
-    console.log({ id }, { payload });
+
 
     const { tags, details, startDate, endDate, ...remainingInfo } = payload;
 
@@ -164,7 +172,7 @@ const updateCourseIntoDB = async (id: string, payload: Partial<TCourse>) => {
 
 
     } catch (error) {
-        console.log(error);
+
         await session.abortTransaction()
         await session.endSession()
         throw new AppError(httpStatus.BAD_REQUEST, 'Something Went Wrong')
@@ -174,6 +182,8 @@ const updateCourseIntoDB = async (id: string, payload: Partial<TCourse>) => {
 
 
 }
+
+
 
 export const CourseServices = {
     createCourseIntoDb,
