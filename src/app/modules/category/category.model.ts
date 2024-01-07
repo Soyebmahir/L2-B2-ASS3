@@ -1,11 +1,18 @@
 import { Schema, model } from "mongoose";
-import { TCategory } from "./category.interface";
+import { CategoryModel, TCategory } from "./category.interface";
 
-const CategorySchema = new Schema<TCategory>({
+
+const CategorySchema = new Schema<TCategory, CategoryModel>({
     name: {
         type: String,
         unique: true
     }
 })
 
-export const Category = model<TCategory>('Category', CategorySchema)
+
+CategorySchema.statics.isCategoryExist = async function (id: string) {
+    const existingCategory = await Category.findOne({ _id: id });
+    return existingCategory;
+
+}
+export const Category = model<TCategory, CategoryModel>('Category', CategorySchema)

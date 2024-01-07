@@ -5,13 +5,24 @@ import Course from "./course.model";
 import httpStatus from "http-status";
 import AppError from "../../Errors/AppError";
 import { ReviewModel } from "../review/review.model";
+import { Category } from "../category/category.model";
 
 
 const createCourseIntoDb = async (payload: TCourse) => {
+    if (!(await Category.isCategoryExist(payload.categoryId as unknown as string))) {
+        if (24 !== (payload.categoryId as unknown as string).length) {
+            throw new AppError(httpStatus.BAD_REQUEST, `${payload.categoryId}, Category Id should be 24 character`)
+        } else {
+            throw new AppError(httpStatus.BAD_REQUEST, `${payload.categoryId}, Category with this Id Doesnt exist`)
+        }
+
+    }
     const result = await Course.create(payload)
     return result;
 
 }
+
+//No.2
 const getAllCourseFromDB = async (query: Record<string, unknown>) => {
     const sortFields = ["title", "price", "startDate", " endDate", "language", "durationInWeeks"]
 
@@ -82,6 +93,7 @@ const getAllCourseFromDB = async (query: Record<string, unknown>) => {
     return result;
 }
 
+//No.6
 const updateCourseIntoDB = async (id: string, payload: Partial<TCourse>) => {
 
 
@@ -109,6 +121,7 @@ const updateCourseIntoDB = async (id: string, payload: Partial<TCourse>) => {
         // console.log();
         if (startDate || endDate) {
             // Update startDate, endDate, and recalculate durationInWeeks
+
             const updatedCourse = await Course.findByIdAndUpdate(id, {
                 startDate: startDate || basicCourseInfoUpdate.startDate,
                 endDate: endDate || basicCourseInfoUpdate.endDate,
@@ -173,7 +186,7 @@ const updateCourseIntoDB = async (id: string, payload: Partial<TCourse>) => {
 
 
     } catch (error) {
-
+        console.log(error);
         await session.abortTransaction()
         await session.endSession()
         throw new AppError(httpStatus.BAD_REQUEST, 'Something Went Wrong')

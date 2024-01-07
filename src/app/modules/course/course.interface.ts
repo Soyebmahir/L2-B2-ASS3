@@ -1,4 +1,5 @@
-import { Types } from "mongoose";
+import { Model, Types } from "mongoose";
+import Course from "./course.model";
 
 export type TTagsObject = {
     name: string;

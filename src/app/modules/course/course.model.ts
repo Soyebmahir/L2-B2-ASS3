@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Schema, model } from "mongoose";
-import { TCourse, TDetailsObject, TTagsObject } from "./course.interface";
+import { CourseModel, TCourse, TDetailsObject, TTagsObject } from "./course.interface";
 
 const tagsSchema = new Schema<TTagsObject>({
     name: {
@@ -28,7 +28,7 @@ const detailsSchema = new Schema<TDetailsObject>({
 
 // interface TCourseDocument extends Document, TCourse { }
 
-const courseSchema = new Schema<TCourse>({
+const courseSchema = new Schema<TCourse, CourseModel>({
     title: {
         type: String,
         unique: true,
@@ -89,8 +89,11 @@ courseSchema.pre('save', function (next) {
     next();
 });
 
+courseSchema.statics.isCategoryExist = async function (id: string) {
+    const existingCategory = await Course.findOne({ id })
+    return existingCategory;
+}
 
-
-const Course = model<TCourse>('Course', courseSchema);
+const Course = model<TCourse, CourseModel>('Course', courseSchema);
 
 export default Course;
